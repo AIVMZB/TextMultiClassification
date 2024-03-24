@@ -1,9 +1,10 @@
 import tensorflow as tf
 
 
-def create_model(config, num_classes):
+def create_model(config, num_classes, embedding_matrix):
     model = tf.keras.Sequential([
-        tf.keras.layers.Embedding(input_dim=config.max_words, output_dim=64, input_length=config.max_len),
+        tf.keras.layers.Embedding(input_dim=config.max_words, output_dim=config.embedding_dim,
+                                  weights=[embedding_matrix], input_length=config.max_len, trainable=False),
         tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64)),
         tf.keras.layers.Dense(64, activation='relu'),
         tf.keras.layers.Dropout(0.5),

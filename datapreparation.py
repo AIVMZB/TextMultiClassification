@@ -4,6 +4,25 @@ from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
+import numpy as np
+
+
+def load_glove_embeddings(embeddings_path, tokenizer, embedding_dim):
+    embeddings_index = {}
+    with open(embeddings_path, encoding="utf8") as f:
+        for line in f:
+            values = line.split()
+            word = values[0]
+            coefs = np.asarray(values[1:], dtype='float32')
+            embeddings_index[word] = coefs
+
+    embedding_matrix = np.zeros((len(tokenizer.word_index) + 1, embedding_dim))
+    for word, i in tokenizer.word_index.items():
+        embedding_vector = embeddings_index.get(word)
+        if embedding_vector is not None:
+            embedding_matrix[i] = embedding_vector
+
+    return embedding_matrix
 
 
 def load_data(file_path):
@@ -46,4 +65,4 @@ def preprocess(config):
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
-    return x_train, y_train, x_test, y_test
+    return tokenizer, x_train, y_train, x_test, y_test
